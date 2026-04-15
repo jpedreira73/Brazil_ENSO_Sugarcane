@@ -24,3 +24,6 @@ The harmonized data structure allows for rapid verification of complex agro-clim
 
 ## License
 This project is licensed under the MIT License.
+
+## Reference
+Pedreira, J. G. S., Fattori Jr., I. M., Vianna, M. S., & Marin, F. R. (2026). Assessing the impact of El Niño-Southern Oscillation on sugarcane yield and quality in Brazil's South-Central Region using the DSSAT-CANEGRO model. *Theoretical and Applied Climatology*, 157(5).
