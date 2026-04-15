@@ -1,0 +1,12 @@
+# Ignore raw data and database files
+Data_Raw/*
+Data_Processed/*.sqlite
+
+# Allow .gitkeep to track the folders
+!.gitkeep
+
+# Python and R specific ignores
+__pycache__/
+*.Rhistory
+*.RData
+*.Ruserdata
