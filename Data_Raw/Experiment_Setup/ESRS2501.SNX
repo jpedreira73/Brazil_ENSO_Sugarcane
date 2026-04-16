@@ -1,0 +1,224 @@
+*EXP.DETAILS: ESRS2501SN ANALISE ENOS - REGIAO SUL
+
+*GENERAL
+@PEOPLE
+Joao & Izael & Fabio
+@ADDRESS
+Piracicaba
+@SITE
+ESALQ
+@ PAREA  PRNO  PLEN  PLDR  PLSP  PLAY HAREA  HRNO  HLEN  HARM.........
+    -99   -99   -99   -99   -99   -99   -99   -99   -99   -99
+
+*TREATMENTS                        -------------FACTOR LEVELS------------
+@N R O C TNAME.................... CU FL SA IC MP MI MF MR MC MT ME MH SM
+ 1 1 1 0 ABR - PRESIDENTE PRUDENTE  1  1  0  1  1  0  0  0  0  0  0  1  1
+ 2 1 1 0 ABR - IVINHEMA             1  2  0  2  1  0  0  0  0  0  0  1  1
+ 3 1 1 0 ABR - PONTA PORA           1  3  0  3  1  0  0  0  0  0  0  1  1
+ 4 1 1 0 ABR - LONDRINA             1  4  0  4  1  0  0  0  0  0  0  1  1
+ 5 1 1 0 ABR - MARINGA              1  5  0  5  1  0  0  0  0  0  0  1  1
+ 6 1 1 0 ABR - SOROCABA             1  6  0  6  1  0  0  0  0  0  0  1  1
+ 7 1 1 0 ABR - IVAI                 1  7  0  7  1  0  0  0  0  0  0  1  1
+ 8 1 1 0 ABR - IRATI                1  8  0  8  1  0  0  0  0  0  0  1  1
+ 9 1 1 0 MAI - PRESIDENTE PRUDENTE  1  1  0  1  2  0  0  0  0  0  0  1  1
+10 1 1 0 MAI - IVINHEMA             1  2  0  2  2  0  0  0  0  0  0  1  1
+11 1 1 0 MAI - PONTA PORA           1  3  0  3  2  0  0  0  0  0  0  1  1
+12 1 1 0 MAI - LONDRINA             1  4  0  4  2  0  0  0  0  0  0  1  1
+13 1 1 0 MAI - MARINGA              1  5  0  5  2  0  0  0  0  0  0  1  1
+14 1 1 0 MAI - SOROCABA             1  6  0  6  2  0  0  0  0  0  0  1  1
+15 1 1 0 MAI - IVAI                 1  7  0  7  2  0  0  0  0  0  0  1  1
+16 1 1 0 MAI - IRATI                1  8  0  8  2  0  0  0  0  0  0  1  1
+17 1 1 0 JUN - PRESIDENTE PRUDENTE  1  1  0  1  3  0  0  0  0  0  0  1  1
+18 1 1 0 JUN - IVINHEMA             1  2  0  2  3  0  0  0  0  0  0  1  1
+19 1 1 0 JUN - PONTA PORA           1  3  0  3  3  0  0  0  0  0  0  1  1
+20 1 1 0 JUN - LONDRINA             1  4  0  4  3  0  0  0  0  0  0  1  1
+21 1 1 0 JUN - MARINGA              1  5  0  5  3  0  0  0  0  0  0  1  1
+22 1 1 0 JUN - SOROCABA             1  6  0  6  3  0  0  0  0  0  0  1  1
+23 1 1 0 JUN - IVAI                 1  7  0  7  3  0  0  0  0  0  0  1  1
+24 1 1 0 JUN - IRATI                1  8  0  8  3  0  0  0  0  0  0  1  1
+25 1 1 0 JUL - PRESIDENTE PRUDENTE  1  1  0  1  4  0  0  0  0  0  0  1  1
+26 1 1 0 JUL - IVINHEMA             1  2  0  2  4  0  0  0  0  0  0  1  1
+27 1 1 0 JUL - PONTA PORA           1  3  0  3  4  0  0  0  0  0  0  1  1
+28 1 1 0 JUL - LONDRINA             1  4  0  4  4  0  0  0  0  0  0  1  1
+29 1 1 0 JUL - MARINGA              1  5  0  5  4  0  0  0  0  0  0  1  1
+30 1 1 0 JUL - SOROCABA             1  6  0  6  4  0  0  0  0  0  0  1  1
+31 1 1 0 JUL - IVAI                 1  7  0  7  4  0  0  0  0  0  0  1  1
+32 1 1 0 JUL - IRATI                1  8  0  8  4  0  0  0  0  0  0  1  1
+33 1 1 0 AGO - PRESIDENTE PRUDENTE  1  1  0  1  5  0  0  0  0  0  0  1  1
+34 1 1 0 AGO - IVINHEMA             1  2  0  2  5  0  0  0  0  0  0  1  1
+35 1 1 0 AGO - PONTA PORA           1  3  0  3  5  0  0  0  0  0  0  1  1
+36 1 1 0 AGO - LONDRINA             1  4  0  4  5  0  0  0  0  0  0  1  1
+37 1 1 0 AGO - MARINGA              1  5  0  5  5  0  0  0  0  0  0  1  1
+38 1 1 0 AGO - SOROCABA             1  6  0  6  5  0  0  0  0  0  0  1  1
+39 1 1 0 AGO - IVAI                 1  7  0  7  5  0  0  0  0  0  0  1  1
+40 1 1 0 AGO - IRATI                1  8  0  8  5  0  0  0  0  0  0  1  1
+41 1 1 0 SET - PRESIDENTE PRUDENTE  1  1  0  1  6  0  0  0  0  0  0  1  1
+42 1 1 0 SET - IVINHEMA             1  2  0  2  6  0  0  0  0  0  0  1  1
+43 1 1 0 SET - PONTA PORA           1  3  0  3  6  0  0  0  0  0  0  1  1
+44 1 1 0 SET - LONDRINA             1  4  0  4  6  0  0  0  0  0  0  1  1
+45 1 1 0 SET - MARINGA              1  5  0  5  6  0  0  0  0  0  0  1  1
+46 1 1 0 SET - SOROCABA             1  6  0  6  6  0  0  0  0  0  0  1  1
+47 1 1 0 SET - IVAI                 1  7  0  7  6  0  0  0  0  0  0  1  1
+48 1 1 0 SET - IRATI                1  8  0  8  6  0  0  0  0  0  0  1  1
+49 1 1 0 OUT - PRESIDENTE PRUDENTE  1  1  0  1  7  0  0  0  0  0  0  1  1
+50 1 1 0 OUT - IVINHEMA             1  2  0  2  7  0  0  0  0  0  0  1  1
+51 1 1 0 OUT - PONTA PORA           1  3  0  3  7  0  0  0  0  0  0  1  1
+52 1 1 0 OUT - LONDRINA             1  4  0  4  7  0  0  0  0  0  0  1  1
+53 1 1 0 OUT - MARINGA              1  5  0  5  7  0  0  0  0  0  0  1  1
+54 1 1 0 OUT - SOROCABA             1  6  0  6  7  0  0  0  0  0  0  1  1
+55 1 1 0 OUT - IVAI                 1  7  0  7  7  0  0  0  0  0  0  1  1
+56 1 1 0 OUT - IRATI                1  8  0  8  7  0  0  0  0  0  0  1  1
+57 1 1 0 NOV - PRESIDENTE PRUDENTE  1  1  0  1  8  0  0  0  0  0  0  1  1
+58 1 1 0 NOV - IVINHEMA             1  2  0  2  8  0  0  0  0  0  0  1  1
+59 1 1 0 NOV - PONTA PORA           1  3  0  3  8  0  0  0  0  0  0  1  1
+60 1 1 0 NOV - LONDRINA             1  4  0  4  8  0  0  0  0  0  0  1  1
+61 1 1 0 NOV - MARINGA              1  5  0  5  8  0  0  0  0  0  0  1  1
+62 1 1 0 NOV - SOROCABA             1  6  0  6  8  0  0  0  0  0  0  1  1
+63 1 1 0 NOV - IVAI                 1  7  0  7  8  0  0  0  0  0  0  1  1
+64 1 1 0 NOV - IRATI                1  8  0  8  8  0  0  0  0  0  0  1  1
+
+*CULTIVARS
+@C CR INGENO CNAME
+ 1 SC RB7515 RB867515
+
+*FIELDS
+@L ID_FIELD WSTA....  FLSA  FLOB  FLDT  FLDD  FLDS  FLST SLTX  SLDP  ID_SOIL    FLNAME
+ 1 ESAL0001 A707       -99   -99   -99   -99   -99   -99 -99    -99  BR05811943 PRESIDENTE PRUDENTE
+ 2 ESAL0002 A703       -99   -99   -99   -99   -99   -99 -99    -99  BR05820554 IVINHEMA
+ 3 ESAL0003 A703       -99   -99   -99   -99   -99   -99 -99    -99  BR05833491 PONTA PORA
+ 4 ESAL0004 3766       -99   -99   -99   -99   -99   -99 -99    -99  BR05872426 LONDRINA
+ 5 ESAL0005 3767       -99   -99   -99   -99   -99   -99 -99    -99  BR05876736 MARINGA
+ 6 ESAL0006 3851       -99   -99   -99   -99   -99   -99 -99    -99  BR05881110 SOROCABA
+ 7 ESAL0007 3811       -99   -99   -99   -99   -99   -99 -99    -99  BR05963149 IVAI
+ 8 ESAL0008 3836       -99   -99   -99   -99   -99   -99 -99    -99  BR05989072 IRATI
+@L ...........XCRD ...........YCRD .....ELEV .............AREA .SLEN .FLWR .SLAS FLHST FHDUR
+ 1             -99             -99       -99               -99   -99   -99   -99   -99   -99
+ 2             -99             -99       -99               -99   -99   -99   -99   -99   -99
+ 3             -99             -99       -99               -99   -99   -99   -99   -99   -99
+ 4             -99             -99       -99               -99   -99   -99   -99   -99   -99
+ 5             -99             -99       -99               -99   -99   -99   -99   -99   -99
+ 6             -99             -99       -99               -99   -99   -99   -99   -99   -99
+ 7             -99             -99       -99               -99   -99   -99   -99   -99   -99
+ 8             -99             -99       -99               -99   -99   -99   -99   -99   -99
+
+*INITIAL CONDITIONS
+@C   PCR ICDAT  ICRT  ICND  ICRN  ICRE  ICWD ICRES ICREN ICREP ICRIP ICRID ICNAME
+ 1   -99 62001   -99   -99     1     1   -99   -99   -99   -99   -99   -99 PRESIDENTE PRUDENTE
+@C  ICBL  SH2O  SNH4  SNO3
+ 1     5  .305    .1    .7
+ 1    15  .317    .1    .7
+ 1    30  .334    .1    .7
+ 1    60  .349    .1    .7
+ 1   100  .348    .1    .7
+ 1   200  .337    .1    .7
+@C   PCR ICDAT  ICRT  ICND  ICRN  ICRE  ICWD ICRES ICREN ICREP ICRIP ICRID ICNAME
+ 2   -99 62001   -99   -99     1     1   -99   -99   -99   -99   -99   -99 IVINHEMA
+@C  ICBL  SH2O  SNH4  SNO3
+ 2     5  .305    .1    .7
+ 2    15  .317    .1    .7
+ 2    30  .334    .1    .7
+ 2    60  .349    .1    .7
+ 2   100  .348    .1    .7
+ 2   200  .337    .1    .7
+@C   PCR ICDAT  ICRT  ICND  ICRN  ICRE  ICWD ICRES ICREN ICREP ICRIP ICRID ICNAME
+ 3   -99 62001   -99   -99     1     1   -99   -99   -99   -99   -99   -99 PONTA PORA
+@C  ICBL  SH2O  SNH4  SNO3
+ 3     5  .305    .1    .7
+ 3    15  .317    .1    .7
+ 3    30  .334    .1    .7
+ 3    60  .349    .1    .7
+ 3   100  .348    .1    .7
+ 3   200  .337    .1    .7
+@C   PCR ICDAT  ICRT  ICND  ICRN  ICRE  ICWD ICRES ICREN ICREP ICRIP ICRID ICNAME
+ 4   -99 62001   -99   -99     1     1   -99   -99   -99   -99   -99   -99 LONDRINA
+@C  ICBL  SH2O  SNH4  SNO3
+ 4     5  .305    .1    .7
+ 4    15  .317    .1    .7
+ 4    30  .334    .1    .7
+ 4    60  .349    .1    .7
+ 4   100  .348    .1    .7
+ 4   200  .337    .1    .7
+@C   PCR ICDAT  ICRT  ICND  ICRN  ICRE  ICWD ICRES ICREN ICREP ICRIP ICRID ICNAME
+ 5   -99 62001   -99   -99     1     1   -99   -99   -99   -99   -99   -99 MARINGA
+@C  ICBL  SH2O  SNH4  SNO3
+ 5     5  .305    .1    .7
+ 5    15  .317    .1    .7
+ 5    30  .334    .1    .7
+ 5    60  .349    .1    .7
+ 5   100  .348    .1    .7
+ 5   200  .337    .1    .7
+@C   PCR ICDAT  ICRT  ICND  ICRN  ICRE  ICWD ICRES ICREN ICREP ICRIP ICRID ICNAME
+ 6   -99 62001   -99   -99     1     1   -99   -99   -99   -99   -99   -99 SOROCABA
+@C  ICBL  SH2O  SNH4  SNO3
+ 6     5  .305    .1    .7
+ 6    15  .317    .1    .7
+ 6    30  .334    .1    .7
+ 6    60  .349    .1    .7
+ 6   100  .348    .1    .7
+ 6   200  .337    .1    .7
+@C   PCR ICDAT  ICRT  ICND  ICRN  ICRE  ICWD ICRES ICREN ICREP ICRIP ICRID ICNAME
+ 7   -99 62001   -99   -99     1     1   -99   -99   -99   -99   -99   -99 IVAI
+@C  ICBL  SH2O  SNH4  SNO3
+ 7     5  .305    .1    .7
+ 7    15  .317    .1    .7
+ 7    30  .334    .1    .7
+ 7    60  .349    .1    .7
+ 7   100  .348    .1    .7
+ 7   200  .337    .1    .7
+@C   PCR ICDAT  ICRT  ICND  ICRN  ICRE  ICWD ICRES ICREN ICREP ICRIP ICRID ICNAME
+ 8   -99 62001   -99   -99     1     1   -99   -99   -99   -99   -99   -99 IRATI
+@C  ICBL  SH2O  SNH4  SNO3
+ 8     5  .305    .1    .7
+ 8    15  .317    .1    .7
+ 8    30  .334    .1    .7
+ 8    60  .349    .1    .7
+ 8   100  .348    .1    .7
+ 8   200  .337    .1    .7
+
+*PLANTING DETAILS
+@P PDATE EDATE  PPOP  PPOE  PLME  PLDS  PLRS  PLRD  PLDP  PLWT  PAGE  PENV  PLPH  SPRL                        PLNAME
+ 1 62105   -99   1.5   1.5     R     R   140   -99    20    10   -99   -99   -99   -99                        ABR
+ 2 62135   -99   1.5   1.5     R     R   140   -99    20    10   -99   -99   -99   -99                        MAI
+ 3 62166   -99   1.5   1.5     R     R   140   -99    20    10   -99   -99   -99   -99                        JUN
+ 4 62196   -99   1.5   1.5     R     R   140   -99    20    10   -99   -99   -99   -99                        JUL
+ 5 62227   -99   1.5   1.5     R     R   140   -99    20    10   -99   -99   -99   -99                        AGO
+ 6 62258   -99   1.5   1.5     R     R   140   -99    20    10   -99   -99   -99   -99                        SET
+ 7 62288   -99   1.5   1.5     R     R   140   -99    20    10   -99   -99   -99   -99                        OUT
+ 8 62319   -99   1.5   1.5     R     R   140   -99    20    10   -99   -99   -99   -99                        NOV
+
+*IRRIGATION AND WATER MANAGEMENT
+@I  EFIR  IDEP  ITHR  IEPT  IOFF  IAME  IAMT IRNAME
+ 1     1    30    50   100 GS000 IR001    10 SEQUEIRO
+@I IDATE  IROP IRVAL
+ 1 62001   -99   -99
+
+*HARVEST DETAILS
+@H HDATE  HSTG  HCOM HSIZE   HPC  HBPC HNAME
+ 1   365 GS000     H   -99   100     0 1 YEAR
+
+*SIMULATION CONTROLS
+@N GENERAL     NYERS NREPS START SDATE RSEED SNAME.................... SMODEL
+ 1 GE             57     1     S 62001  2150 START                     SCSAM
+@N OPTIONS     WATER NITRO SYMBI PHOSP POTAS DISES  CHEM  TILL   CO2
+ 1 OP              Y     N     N     N     N     N     N     N     D
+@N METHODS     WTHER INCON LIGHT EVAPO INFIL PHOTO HYDRO NSWIT MESOM MESEV MESOL
+ 1 ME              M     M     E     F     N     C     R     1     G     S     3
+@N MANAGEMENT  PLANT IRRIG FERTI RESID HARVS
+ 1 MA              R     N     N     N     D
+@N OUTPUTS     FNAME OVVEW SUMRY FROPT GROUT CAOUT WAOUT NIOUT MIOUT DIOUT VBOSE CHOUT OPOUT FMOPT
+ 1 OU              N     Y     Y    73     Y     N     Y     Y     N     N     A     N     N     A
+
+@  AUTOMATIC MANAGEMENT
+@N PLANTING    PFRST PLAST PH2OL PH2OU PH2OD PSTMX PSTMN
+ 1 PL          00001 00365    40   100    30    40    10
+@N IRRIGATION  IMDEP ITHRL ITHRU IROFF IMETH IRAMT IREFF
+ 1 IR             30    50   100 GS000 IR001    10     1
+@N NITROGEN    NMDEP NMTHR NAMNT NCODE NAOFF
+ 1 NI             30    50    25 FE001 GS000
+@N RESIDUES    RIPCN RTIME RIDEP
+ 1 RE            100     1    20
+@N HARVEST     HFRST HLAST HPCNP HPCNR
+ 1 HA              0 00001   100     0
+
+
+
