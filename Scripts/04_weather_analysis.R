@@ -1,95 +1,62 @@
-# Load required libraries
+# ==============================================================================
+# 08_automated_reports.R
+# Final Reproducible Pipeline for ENSO-Driven Sugarcane Simulations
+# ==============================================================================
 library(tidyverse)
-library(DSSAT)
-library(readxl)
+library(DBI)
+library(RSQLite)
 
 # ==============================================================================
-# 1. INTERACTIVE REGION SELECTION
+# 1. SETUP PATHS & DATABASE CONNECTION
 # ==============================================================================
-regions <- c("CENTRO", "NORTE", "SUL")
-choice <- menu(regions, title = "Select the region you want to process:")
+base_dir <- "C:/Users/jgspe/Documents/Brazil_ENSO_Sugarcane"
+db_path <- file.path(base_dir, "Sugarcane_ENSO.db")
+output_dir <- file.path(base_dir, "Automated_Plots") # Folder for FAIR deliverables [cite: 38]
 
-if(choice == 0) stop("Execution canceled.")
-selected_region <- regions[choice]
+if(!dir.exists(output_dir)) dir.create(output_dir)
 
-cat("\n=========================================\n")
-cat("Processing weather data for region:", selected_region, "\n")
-cat("=========================================\n")
-
-# ==============================================================================
-# 2. LOOP PARAMETERS
-# ==============================================================================
-month_abbrs <- c("ABR", "MAI", "JUN", "JUL", "AGO", "SET", "OCT", "NOV")
-month_names <- c("April", "May", "June", "July", "August", "September", "October", "November")
-
-base_dir_class <- "C:/Users/jgspe/OneDrive/Documents/IC BR"
-base_dir_dssat <- file.path("C:/Users/jgspe/OneDrive/Documents/IC BR/Resultados - Xavier", selected_region)
+cat("Connecting to the FAIR database...\n")
+conn <- dbConnect(RSQLite::SQLite(), db_path)
 
 # ==============================================================================
-# 3. OPTIMIZED PROCESSING FUNCTION (Reads, Cleans, and Joins Data)
+# 2. DATA EXTRACTION & AGGRESSIVE CLEANING
 # ==============================================================================
-process_month <- function(abbr, month_name) {
-  cat("Extracting and processing:", abbr, "...\n")
-  
-  # Define exact paths
-  path_class <- file.path(base_dir_class, paste0("CLASSIFICACAO_", abbr, ".xlsx"))
-  path_dssat <- file.path(base_dir_dssat, paste0("Summary_", abbr, ".OUT"))
-  
-  # Read classification file and align column names for joining
-  df_class <- read_excel(path_class, sheet = "Sheet1") %>%
-    rename(HYEAR = YEAR)
-  
-  # Read DSSAT Summary file and cut RAM usage immediately
-  df_dssat <- DSSAT::read_output(path_dssat) %>%
-    select(HYEAR, TMAXA, TMINA, SRADA, PRCP) %>%
-    # Join ENSO classification dynamically
-    left_join(df_class, by = "HYEAR") %>%
-    mutate(
-      harv.month = month_name,
-      classification = ifelse(classification == "N", "NE", classification)
-    )
-  
-  return(df_dssat)
-}
-
-# ==============================================================================
-# 4. EXECUTE LOOP AND COMBINE DATA
-# ==============================================================================
-weather_monthly <- map2_dfr(month_abbrs, month_names, process_month)
-
-# Pivot longer for plotting and analysis
-weather.harv_ALL <- weather_monthly %>%
-  filter(!is.na(classification)) %>% # Remove any years without classification
-  pivot_longer(
-    cols = c(TMAXA, TMINA, SRADA, PRCP), 
-    names_to = "Variable", 
-    values_to = "Value"
+# 2A. Fetch Yield Data [cite: 26, 41]
+yield_query <- "
+  SELECT Y.Region, Y.Year AS YEAR, Y.Harvest_Month AS 'harv.month', 
+         E.Phase AS classification, Y.TCH_t_ha, Y.Sugar_Yield_kg_tc, Y.TSH_t_ha
+  FROM Yield_Results Y
+  JOIN ENSO_Lookup E ON Y.Year = E.Year
+"
+yield_data_all <- dbGetQuery(conn, yield_query) %>%
+  mutate(
+    classification = str_squish(classification), 
+    classification = ifelse(classification %in% c("N", "NE"), "NE", classification)
   )
 
-# ==============================================================================
-# 5. DESCRIPTIVE STATISTICS
-# ==============================================================================
-summary_table <- weather.harv_ALL %>%
-  group_by(Variable, classification) %>%
-  summarise(
-    Minimum = min(Value, na.rm = TRUE),
-    Q1 = quantile(Value, 0.25, na.rm = TRUE),
-    Median = median(Value, na.rm = TRUE),
-    Q3 = quantile(Value, 0.75, na.rm = TRUE),
-    Maximum = max(Value, na.rm = TRUE),
-    .groups = 'drop'
+# 2B. Fetch Daily Weather Data [cite: 26, 27]
+weather_data_all <- dbGetQuery(conn, "SELECT Loc_ID, Date, TMAX, TMIN, PRCP, SRAD FROM Weather_Daily")
+
+# 2C. Fetch ENSO Lookup for Weather Mapping
+enso_df <- dbGetQuery(conn, "SELECT Year, Phase AS classification FROM ENSO_Lookup") %>%
+  mutate(
+    classification = str_squish(classification), 
+    classification = ifelse(classification %in% c("N", "NE"), "NE", classification)
   )
 
-cat("\n=== DESCRIPTIVE STATISTICS ===\n")
-print(summary_table)
+dbDisconnect(conn)
 
 # ==============================================================================
-# 6. PLOTS (GGPLOT2)
+# 3. PLOT SETTINGS & TEMPLATES
 # ==============================================================================
+db_regions <- c("CENTRO", "NORTE", "SUL")
+display_regions <- c("Center", "North", "South")
+loc_ids <- c(1, 2, 3) 
+
 custom_order <- c("EN", "NE", "LA") 
 custom_colors <- c("EN" = "#F8766D", "NE" = "grey", "LA" = "#619CFF")
 
-# Define custom labels for variables
+# ICASA-compliant variable labels 
 variable_labels <- c(
   SRADA = "SRAD (MJ m² d)", 
   PRCP = "PRCP (mm)", 
@@ -97,7 +64,7 @@ variable_labels <- c(
   TMINA = "TMIN (°C)"
 )
 
-# Define limits for each variable
+# Standardized axis limits
 y_limits <- list(
   PRCP = c(0, 3000),
   SRADA = c(10, 25),
@@ -105,31 +72,94 @@ y_limits <- list(
   TMINA = c(10, 25)
 )
 
-# Create dummy data for setting free_y limits perfectly
-dummy_limits <- do.call(rbind, lapply(names(y_limits), function(var) {
+dummy_limits <- bind_rows(lapply(names(y_limits), function(var) {
   expand.grid(Variable = var, classification = custom_order, Value = y_limits[[var]])
-}))
+})) %>%
+  mutate(classification = factor(classification, levels = custom_order))
 
-# Generate the faceted boxplot
-ggplot(weather.harv_ALL, aes(x = factor(classification, levels = custom_order), y = Value)) +
-  geom_boxplot(aes(fill = classification)) +
-  geom_blank(data = dummy_limits) +
-  labs(x = "", y = "", fill = "ENSO Phenomenon") +
-  scale_x_discrete(limits = custom_order) +
-  scale_fill_manual(
-    values = custom_colors, 
-    breaks = c("EN", "NE", "LA")
-  ) +
-  theme_bw() +
-  theme(
-    legend.position = "bottom", 
-    axis.text.y = element_blank(), 
-    axis.ticks.y = element_blank()
-  ) +
-  facet_wrap(
-    ~ Variable, 
-    scales = 'free_y', 
-    labeller = labeller(Variable = variable_labels),
-    ncol = 1,
-    strip.position = "right"
-  )
+# ==============================================================================
+# 4. AUTOMATION LOOP FOR EACH REGION
+# ==============================================================================
+for (i in 1:length(db_regions)) {
+  
+  target_db_region <- db_regions[i]
+  target_disp_region <- display_regions[i]
+  target_loc_id <- loc_ids[i]
+  
+  cat("\n=========================================\n")
+  cat("Processing:", target_disp_region, "Region\n")
+  cat("=========================================\n")
+  
+  reg_weather_data <- weather_data_all %>% filter(Loc_ID == target_loc_id)
+  
+  if(nrow(reg_weather_data) > 0) {
+    
+    # ENSURE TYPES ARE NUMERIC BEFORE JOINING
+    enso_df$Year <- as.numeric(as.character(enso_df$Year))
+    
+    # --- UNIVERSAL MATH-BASED DATE PARSER ---
+    weather_agg <- reg_weather_data %>%
+      mutate(
+        raw_val = as.numeric(as.character(Date)),
+        # Logic: YYDDD / 1000 gives YY. YYYYDDD / 1000 gives YYYY.
+        year_extracted = floor(raw_val / 1000),
+        # Final Correction: If extracted year is 2-digits, add century.
+        Year = ifelse(year_extracted > 1000, 
+                      year_extracted, 
+                      ifelse(year_extracted < 50, 2000 + year_extracted, 1900 + year_extracted))
+      ) %>%
+      group_by(Year) %>%
+      summarise(
+        PRCP  = sum(PRCP, na.rm = TRUE),   
+        SRADA = mean(SRAD, na.rm = TRUE),  
+        TMAXA = mean(TMAX, na.rm = TRUE),  
+        TMINA = mean(TMIN, na.rm = TRUE),  
+        .groups = 'drop'
+      )
+    
+    # --- JOIN AND PIVOT ---
+    weather_long <- weather_agg %>%
+      inner_join(enso_df, by = "Year") %>% 
+      pivot_longer(cols = c(TMAXA, TMINA, PRCP, SRADA), names_to = "Variable", values_to = "Value") %>%
+      mutate(classification = factor(classification, levels = custom_order))
+    
+    # --- DIAGNOSTIC OUTPUT ---
+    if(nrow(weather_long) > 0) {
+      cat("  -> Successfully matched", length(unique(weather_long$Year)), "years.\n")
+      cat("  -> Overlap Range:", min(weather_long$Year), "to", max(weather_long$Year), "\n")
+      
+      weather_plot <- ggplot(weather_long, aes(x = classification, y = Value)) +
+        geom_boxplot(aes(fill = classification)) +
+        geom_blank(data = dummy_limits) +
+        labs(
+          x = "", y = "", fill = "ENSO Phenomenon",
+          title = paste("Historical Weather Distribution -", target_disp_region, "Region")
+        ) +
+        scale_x_discrete(limits = custom_order) +
+        scale_fill_manual(values = custom_colors, breaks = custom_order, drop = FALSE) +
+        theme_bw() +
+        theme(
+          legend.position = "bottom", 
+          axis.text.y = element_blank(), 
+          axis.ticks.y = element_blank()
+        ) +
+        facet_wrap(
+          ~ Variable, scales = 'free_y',
+          labeller = labeller(Variable = variable_labels),
+          ncol = 1, strip.position = "right"
+        )
+      
+      weather_filename <- file.path(output_dir, paste0("Weather_Analysis_", target_db_region, ".png"))
+      ggsave(weather_filename, plot = weather_plot, width = 6, height = 10, dpi = 300)
+      cat("  -> Saved Weather Plot\n")
+    } else {
+      # Debug: If the join fails, show the user the data so we can see the mismatch
+      cat("  -> ERROR: No overlapping years found after join.\n")
+      cat("     Weather Years in DB:", paste(head(sort(unique(weather_agg$Year))), collapse=", "), "...\n")
+      cat("     ENSO Years in DB:", paste(head(sort(unique(enso_df$Year))), collapse=", "), "...\n")
+    }
+    
+  } else {
+    cat("  -> Alert: No weather records found in DB for Loc_ID", target_loc_id, "\n")
+  }
+}

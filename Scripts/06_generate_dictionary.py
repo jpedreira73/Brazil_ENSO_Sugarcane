@@ -1,4 +1,15 @@
-# Data Dictionary: Sugarcane ENSO Database (`Sugarcane_ENSO.db`)
+import os
+
+# ==============================================================================
+# 1. SETUP PATHS
+# ==============================================================================
+base_dir = "C:/Users/jgspe/Documents/Brazil_ENSO_Sugarcane"
+output_file = os.path.join(base_dir, "Data_Dictionary.md")
+
+# ==============================================================================
+# 2. DEFINE THE ENHANCED MARKDOWN CONTENT
+# ==============================================================================
+markdown_content = """# Data Dictionary: Sugarcane ENSO Database (`Sugarcane_ENSO.db`)
 
 ## 1. Overview & Data Scope
 This database harmonizes 56 growing seasons (1962–2018) of weather observations and DSSAT/CANEGRO sugarcane simulation outputs[cite: 5]. The system is designed to analyze yield anomalies driven by the El Niño-Southern Oscillation (ENSO) across three primary Brazilian regions (CENTRO, NORTE, SUL), with the architectural capacity to scale to 24 geographical locations[cite: 5, 13].
@@ -77,3 +88,16 @@ To maintain logical consistency and academic reproducibility, the processing pip
 * **Accessible:** The SQLite database is accessible via standard open-source tools like DB Browser for SQLite[cite: 35].
 * **Interoperable:** Variable naming and metadata adhere to the ICASA global ontology for crop modeling[cite: 22, 36].
 * **Reusable:** All processing scripts are heavily commented and released under the open-source MIT License[cite: 37].
+"""
+
+# ==============================================================================
+# 3. WRITE THE FILE
+# ==============================================================================
+print(f"Generating Proposal-Compliant Data Dictionary at: {output_file}...")
+
+try:
+    with open(output_file, "w", encoding="utf-8") as file:
+        file.write(markdown_content)
+    print("Success! Data_Dictionary.md has been updated to meet project objectives.")
+except Exception as e:
+    print(f"An error occurred while writing the file: {e}")

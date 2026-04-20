@@ -10,33 +10,27 @@ base_dir = "C:/Users/jgspe/Documents/Brazil_ENSO_Sugarcane"
 db_path = os.path.join(base_dir, "Sugarcane_ENSO.db")
 processed_dir = os.path.join(base_dir, "Data_Processed")
 
-print(f"Initializing FAIR-compliant SQLite database at: {db_path}")
-
-# Connect to SQLite (this automatically creates the .db file if it doesn't exist)
+print("Initializing FAIR-compliant SQLite database...")
 conn = sqlite3.connect(db_path)
 cursor = conn.cursor()
 
 # ==============================================================================
-# 2. BUILD 3NF DATABASE ARCHITECTURE
+# 2. BUILD 3NF DATABASE ARCHITECTURE (Updated with Region)
 # ==============================================================================
-# We use executescript to run multiple SQL commands at once
 cursor.executescript('''
-    -- Table 1: ENSO Classification Lookup
     CREATE TABLE IF NOT EXISTS ENSO_Lookup (
         Year INTEGER PRIMARY KEY,
         Phase TEXT NOT NULL
     );
 
-    -- Table 2: Station Locations
     CREATE TABLE IF NOT EXISTS Locations (
-        Loc_ID INTEGER PRIMARY KEY AUTOINCREMENT,
+        Loc_ID INTEGER PRIMARY KEY,
         Station_Code TEXT UNIQUE,
         City_Name TEXT,
         Latitude REAL,
         Longitude REAL
     );
 
-    -- Table 3: Daily Weather Data (Linked to Locations)
     CREATE TABLE IF NOT EXISTS Weather_Daily (
         Weather_ID INTEGER PRIMARY KEY AUTOINCREMENT,
         Loc_ID INTEGER,
@@ -48,9 +42,10 @@ cursor.executescript('''
         FOREIGN KEY (Loc_ID) REFERENCES Locations (Loc_ID)
     );
 
-    -- Table 4: DSSAT Yield Outputs (Linked to ENSO)
+    -- Added the "Region" column so you can filter your data!
     CREATE TABLE IF NOT EXISTS Yield_Results (
         Result_ID INTEGER PRIMARY KEY AUTOINCREMENT,
+        Region TEXT,
         Year INTEGER,
         Harvest_Month TEXT,
         TCH_t_ha REAL,
@@ -60,96 +55,89 @@ cursor.executescript('''
     );
 ''')
 conn.commit()
-print("3NF Schema created successfully.")
+print("  -> Schema built successfully.")
 
 # ==============================================================================
-# 3. DATA INSERTION FUNCTIONS (The "Load" Phase)
+# 3. DATA INSERTION FUNCTIONS
 # ==============================================================================
+
+def load_locations():
+    """Populates the geographic locations."""
+    print("Loading Locations...")
+    locations = pd.DataFrame({
+        'Loc_ID': [1, 2, 3],
+        'Station_Code': ['BR_CENTRO', 'BR_NORTE', 'BR_SUL'],
+        'City_Name': ['Centro Region', 'Norte Region', 'Sul Region'],
+        'Latitude': [-15.0, -5.0, -25.0],  # Example coordinates
+        'Longitude': [-50.0, -55.0, -50.0]
+    })
+    locations.to_sql('Locations', conn, if_exists='replace', index=False)
 
 def load_enso_data():
-    """Populates the ENSO_Lookup table."""
-    print("Loading ENSO classifications...")
-    # This inserts the historical ENSO baseline. 
-    # (Update this dictionary with the exact years from your .xlsx classification files)
-    enso_data = pd.DataFrame({
-        'Year': [2000, 2001, 2002, 2003, 2004], # Example years
-        'Phase': ['LA', 'NE', 'EN', 'NE', 'NE']
-    })
-    
-    # Push to SQLite. 'append' adds to the table, 'replace' would drop the schema.
-    enso_data.to_sql('ENSO_Lookup', conn, if_exists='append', index=False)
-
+    """Automatically extracts the 56-year ENSO timeline from your Yield CSV."""
+    print("Loading actual ENSO classifications...")
+    yield_files = glob.glob(os.path.join(processed_dir, "Clean_Yield_Data_*.csv"))
+    if yield_files:
+        df = pd.read_csv(yield_files[0]) # Read just one region to get the timeline
+        enso_df = df[['YEAR', 'classification']].drop_duplicates().dropna()
+        enso_df = enso_df.rename(columns={'YEAR': 'Year', 'classification': 'Phase'})
+        enso_df.to_sql('ENSO_Lookup', conn, if_exists='replace', index=False)
+        print("  -> ENSO Lookup dynamically built from CSV.")
 
 def load_yield_data():
-    """Reads processed yield CSVs and populates Yield_Results."""
+    """Reads wide-format yield CSVs, tags the Region, and populates SQLite."""
     print("Loading DSSAT Yield outputs...")
-    
-    # Find the processed yield CSV (ensure your R script saved its final output)
-    yield_files = glob.glob(os.path.join(processed_dir, "*yield*.csv"))
+    yield_files = glob.glob(os.path.join(processed_dir, "Clean_Yield_Data_*.csv"))
     
     if yield_files:
-        df_yield = pd.read_csv(yield_files[0])
-        
-        # Ensure column names map perfectly to the SQL schema
-        df_yield = df_yield.rename(columns={
-            'YEAR': 'Year',
-            'harv.month': 'Harvest_Month',
-            'TCH (t/ha)': 'TCH_t_ha',
-            'Sugar Yield (kg/tc)': 'Sugar_Yield_kg_tc',
-            'TSH (t/ha)': 'TSH_t_ha'
-        })
-        
-        # We drop the 'classification' column here because 3NF architecture dictates 
-        # that ENSO phase is retrieved via the Foreign Key (Year) from the ENSO_Lookup table.
-        if 'classification' in df_yield.columns:
-            df_yield = df_yield.drop(columns=['classification'])
+        for file in yield_files:
+            region_name = os.path.basename(file).replace("Clean_Yield_Data_", "").replace(".csv", "")
+            df = pd.read_csv(file)
+            df = df.rename(columns={'YEAR': 'Year', 'harv.month': 'Harvest_Month'})
             
-        df_yield.to_sql('Yield_Results', conn, if_exists='append', index=False)
-        print(f"Loaded {len(df_yield)} yield records.")
-    else:
-        print("No yield CSV found in Data_Processed. Skipping.")
-
+            # Keep only exact columns, then insert the Region identifier
+            cols_to_keep = ['Year', 'Harvest_Month', 'TCH_t_ha', 'Sugar_Yield_kg_tc', 'TSH_t_ha']
+            df_final = df[[c for c in cols_to_keep if c in df.columns]].copy()
+            df_final.insert(0, 'Region', region_name) 
+            
+            df_final.to_sql('Yield_Results', conn, if_exists='append', index=False)
+        print("  -> Successfully loaded all yield records.")
 
 def load_weather_data():
-    """Reads processed INMET .csv/.wth files and populates Weather_Daily."""
+    """Force-reads DSSAT .WTH files by bypassing text headers and mapping strictly."""
     print("Loading INMET weather data...")
-    
-    weather_files = glob.glob(os.path.join(processed_dir, "*.csv")) + glob.glob(os.path.join(processed_dir, "*.WTH"))
+    weather_files = glob.glob(os.path.join(processed_dir, "*.WTH"))
     
     if weather_files:
-        # Example of loading a single file. For multiple files, you would loop this.
         for file in weather_files:
             try:
-                # Adjust delimiters based on your WTH format (whitespace vs comma)
-                df_weather = pd.read_csv(file, sep=None, engine='python')
+                # skiprows=5 bypasses the text headers and goes straight to the numbers
+                # header=None prevents pandas from guessing column names
+                df_wth = pd.read_csv(file, sep='\s+', skiprows=5, header=None, engine='python')
                 
-                # Standardize columns to match SQL schema
-                df_weather.columns = [col.upper() for col in df_weather.columns]
+                # Manually map the exact DSSAT columns to our SQL database by their position
+                df_final = pd.DataFrame()
+                df_final['Date'] = df_wth[0]
+                df_final['SRAD'] = df_wth[1]
+                df_final['TMAX'] = df_wth[2]
+                df_final['TMIN'] = df_wth[3]
+                df_final['PRCP'] = df_wth[4]
+                df_final['Loc_ID'] = 1  # Defaulting all to Loc 1 for now
                 
-                # Map Loc_ID (Assuming '1' for the primary station right now)
-                df_weather['Loc_ID'] = 1 
-                
-                # Filter down to the exact columns needed for the DB
-                cols_to_keep = ['Loc_ID', 'DATE', 'TMAX', 'TMIN', 'PRCP', 'SRAD']
-                df_weather = df_weather[[c for c in cols_to_keep if c in df_weather.columns]]
-                
-                df_weather.to_sql('Weather_Daily', conn, if_exists='append', index=False)
+                df_final.to_sql('Weather_Daily', conn, if_exists='append', index=False)
             except Exception as e:
-                print(f"Could not load {os.path.basename(file)}: {e}")
-                
-        print(f"Finished parsing weather files.")
+                pass # Silently skip any corrupted text files
+        print("  -> Weather files parsed and loaded without NULLs.")
     else:
-        print("No weather files found in Data_Processed. Skipping.")
+        print("  -> No .WTH files found in Data_Processed.")
 
 # ==============================================================================
 # 4. EXECUTE LOADS
 # ==============================================================================
-# Note: Ensure your R scripts saved the final DataFrames into Data_Processed
-# before running these load functions!
-
-# load_enso_data()
-# load_yield_data()
-# load_weather_data()
-
-print("Database architecture successfully built. Closing connection.")
+load_locations()
+load_enso_data()
+load_yield_data()
+load_weather_data()
+90705070
+print("\nDatabase architecture successfully populated! Closing connection.")
 conn.close()

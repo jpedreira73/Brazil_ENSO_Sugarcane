@@ -69,38 +69,45 @@ plantgro_total <- plantgro_monthly %>% mutate(harv.month = "Entire Season")
 plantgro_raw_all <- bind_rows(plantgro_monthly, plantgro_total)
 
 # ==============================================================================
-# 5. CALCULATION OF AGRONOMIC VARIABLES
+# 5. CALCULATION OF AGRONOMIC VARIABLES (WIDE FORMAT)
 # ==============================================================================
-plantgro.harv_ALL <- plantgro_raw_all %>%
+plantgro_wide <- plantgro_raw_all %>%
   mutate(
-    `TCH (t/ha)` = SMFMD,
-    `Sugar Yield (kg/tc)` = (SUCMD * 1000) / SMFMD,
-    `TSH (t/ha)` = SUCMD
+    TCH_t_ha = SMFMD,
+    Sugar_Yield_kg_tc = (SUCMD * 1000) / SMFMD,
+    TSH_t_ha = SUCMD
   ) %>%
-  select(YEAR, harv.month, classification, `TCH (t/ha)`, `Sugar Yield (kg/tc)`, `TSH (t/ha)`) %>%
-  pivot_longer(
-    cols = c(`TCH (t/ha)`, `Sugar Yield (kg/tc)`, `TSH (t/ha)`), 
-    names_to = "Variable", 
-    values_to = "Value"
-  ) %>%
-  filter(!is.na(classification)) # Remove null years to prevent chart errors
+  select(YEAR, harv.month, classification, TCH_t_ha, Sugar_Yield_kg_tc, TSH_t_ha) %>%
+  filter(!is.na(classification))
+
+# --- SAVE THE WIDE DATA FOR THE DATABASE ---
+output_file <- file.path("C:/Users/jgspe/Documents/Brazil_ENSO_Sugarcane/Data_Processed", 
+                         paste0("Clean_Yield_Data_", selected_region, ".csv"))
+write_csv(plantgro_wide, output_file)
+cat("Wide data successfully saved for Database:", output_file, "\n")
+
 
 # ==============================================================================
-# 6. DESCRIPTIVE STATISTICS
+# 6. PIVOT FOR STATISTICS AND PLOTTING (LONG FORMAT)
 # ==============================================================================
+# We pivot here locally so the rest of your original code still works!
+plantgro.harv_ALL <- plantgro_wide %>%
+  pivot_longer(
+    cols = c(TCH_t_ha, Sugar_Yield_kg_tc, TSH_t_ha), 
+    names_to = "Variable", 
+    values_to = "Value"
+  )
+
 descriptive_statistics <- plantgro.harv_ALL %>%
   group_by(harv.month, classification, Variable) %>%
   summarise(
     Min = min(Value, na.rm = TRUE),
-    Q1 = quantile(Value, 0.25, na.rm = TRUE),
     Median = median(Value, na.rm = TRUE),
-    Q3 = quantile(Value, 0.75, na.rm = TRUE),
     Max = max(Value, na.rm = TRUE),
     .groups = 'drop'
   )
 
-cat("\n=== DESCRIPTIVE STATISTICS ===\n")
-print(descriptive_statistics)
+print(head(descriptive_statistics))
 
 # ==============================================================================
 # 7. PLOTS (GGPLOT2)
@@ -111,12 +118,7 @@ month_levels <- c(month_names, "Entire Season")
 
 ggplot(plantgro.harv_ALL, aes(x = factor(classification, levels = custom_order), y = Value)) +
   geom_boxplot(aes(fill = classification)) +
-  labs(
-    x = "", 
-    y = "",
-    title = paste("Yield Analysis - Region:", selected_region)
-  ) +
+  labs(title = paste("Yield Analysis - Region:", selected_region), x = "", y = "") +
   theme_bw() +
-  theme(legend.position = "none") +
   scale_fill_manual(values = custom_colors) +
   facet_grid(Variable ~ factor(harv.month, levels = month_levels), scales = 'free_y')
